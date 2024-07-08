@@ -10,7 +10,7 @@ public class ClientModel {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private String username; // Campo para el nombre de usuario
+    private String username;
 
     public void setUsername(String username) {
         this.username = username;
@@ -21,26 +21,21 @@ public class ClientModel {
             socket = new Socket(ip, port);
             out = new PrintWriter(socket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            // Start a separate thread for receiving messages from the server
-            new Thread(() -> {
-                String inputLine;
-                try {
-                    while ((inputLine = in.readLine()) != null) {
-                        System.out.println(inputLine);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void sendMessage(String message) {
-        // Incluir el nombre de usuario en el mensaje enviado
         out.println(username + ": " + message);
+    }
+
+    public String receiveMessage() {
+        try {
+            return in.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
