@@ -14,7 +14,7 @@ import org.bson.Document;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class ClientController {
     private ClientView view;
@@ -28,22 +28,21 @@ public class ClientController {
         this.view = view;
         this.model = model;
         this.mongoClient = MongoClients.create("mongodb://localhost:27017");
-        this.database = mongoClient.getDatabase("chat_app");
+        this.database = mongoClient.getDatabase("quiz_app");
         this.usersCollection = database.getCollection("users");
 
-        view.enableChat(false);
+        view.enableQuestionPanel(false);
         view.showRoomOptions(false);
 
-        view.addSendButtonListener(new ActionListener() {
+        view.addAnswerButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (isLoggedIn) {
-                    String message = view.getInputText();
-                    model.sendMessage(message);
-                    view.displayMessage("Me: " + message);
-                    view.clearInputText();
+                    JButton source = (JButton) e.getSource();
+                    String answer = source.getText();
+                    model.submitAnswer(answer);
                 } else {
-                    JOptionPane.showMessageDialog(view, "Please login to send messages.");
+                    JOptionPane.showMessageDialog(view, "Please login to play.");
                 }
             }
         });
@@ -88,7 +87,13 @@ public class ClientController {
             while (true) {
                 String message = model.receiveMessage();
                 if (message != null) {
-                    view.displayMessage(message);
+                    // Parse and handle the received message
+                    // Example: "QUESTION|What is 2+2?|3|4|5|6"
+                    String[] parts = message.split("\\|");
+                    if (parts[0].equals("QUESTION")) {
+                        view.setQuestion(parts[1], new String[]{parts[2], parts[3], parts[4], parts[5]});
+                        view.enableQuestionPanel(true);
+                    }
                 }
             }
         }).start();
@@ -108,7 +113,6 @@ public class ClientController {
             view.displayMessage("Logged in as: " + username);
             isLoggedIn = true;
             view.showLoginPanel(false);
-            view.enableChat(true);
             view.showRoomOptions(true);
         } else {
             view.displayMessage("Invalid credentials. Please try again.");

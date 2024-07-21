@@ -28,7 +28,11 @@ public class ClientModel {
     }
 
     public void sendMessage(String message) {
-        out.println("MESSAGE|" + roomCode + "|" + username + ": " + message);
+        out.println(message);
+    }
+
+    public void submitAnswer(String answer) {
+        out.println("ANSWER|" + roomCode + "|" + username + "|" + answer);
     }
 
     public String receiveMessage() {

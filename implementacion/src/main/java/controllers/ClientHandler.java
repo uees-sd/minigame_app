@@ -11,11 +11,12 @@ import models.ServerModel;
 public class ClientHandler extends Thread {
     private Socket clientSocket;
     private ServerModel model;
-    private ServerController controller;
+    private ServerController controller; // Agregar esta línea
     private PrintWriter out;
     private BufferedReader in;
     private String roomCode;
 
+    // Constructor modificado para aceptar ServerController
     public ClientHandler(Socket socket, ServerModel model, ServerController controller) {
         this.clientSocket = socket;
         this.model = model;
@@ -30,21 +31,23 @@ public class ClientHandler extends Thread {
 
             String inputLine;
             while ((inputLine = in.readLine()) != null) {
-                String[] parts = inputLine.split("\\|", 3);
+                String[] parts = inputLine.split("\\|", 4);
                 if (parts.length < 2) continue;
 
                 String command = parts[0];
-                String message = parts.length > 2 ? parts[2] : "";
+                String roomCode = parts.length > 1 ? parts[1] : "";
+                String username = parts.length > 2 ? parts[2] : "";
+                String message = parts.length > 3 ? parts[3] : "";
 
                 switch (command) {
                     case "CREATE_ROOM":
-                        handleCreateRoom(parts[1]);
+                        handleCreateRoom(username);
                         break;
                     case "JOIN_ROOM":
-                        handleJoinRoom(parts[1], parts[2]);
+                        handleJoinRoom(roomCode, username);
                         break;
-                    case "MESSAGE":
-                        handleMessage(parts[1], message);
+                    case "ANSWER":
+                        handleAnswer(roomCode, username, message);
                         break;
                 }
             }
@@ -59,6 +62,8 @@ public class ClientHandler extends Thread {
         String roomCode = generateRoomCode();
         model.addClient(this, roomCode);
         sendMessage("Room created with code: " + roomCode);
+        // Send initial question to room
+        sendMessage("QUESTION|What is 2+2?|3|4|5|6");
     }
 
     private void handleJoinRoom(String roomCode, String username) {
@@ -67,8 +72,9 @@ public class ClientHandler extends Thread {
         sendMessage("Joined room: " + roomCode);
     }
 
-    private void handleMessage(String roomCode, String message) {
-        model.broadcastMessage(message, roomCode, this);
+    private void handleAnswer(String roomCode, String username, String answer) {
+        // Validate answer and broadcast result
+        model.broadcastMessage(username + " answered: " + answer, roomCode, this);
     }
 
     private String generateRoomCode() {

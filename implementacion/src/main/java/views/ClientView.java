@@ -5,37 +5,24 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class ClientView extends JFrame {
-    private JTextArea chatArea;
-    private JTextField inputField;
-    private JButton sendButton;
+    private JLabel questionLabel;
+    private JButton answerButton1;
+    private JButton answerButton2;
+    private JButton answerButton3;
+    private JButton answerButton4;
     private JButton loginButton;
     private JButton registerButton;
     private JButton createRoomButton;
     private JButton joinRoomButton;
     private JPanel loginPanel;
     private JPanel roomPanel;
+    private JPanel questionPanel;
+    private JTextArea messageArea;
 
     public ClientView() {
-        setTitle("Chat Client");
+        setTitle("Math Quiz Game");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        JPanel chatPanel = new JPanel();
-        chatPanel.setLayout(new BorderLayout());
-
-        chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        chatArea.setLineWrap(true);
-
-        inputField = new JTextField(30);
-        sendButton = new JButton("Send");
-
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-
-        chatPanel.add(new JScrollPane(chatArea), BorderLayout.CENTER);
-        chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
         loginPanel = new JPanel();
         loginPanel.setLayout(new GridLayout(3, 1));
@@ -43,7 +30,7 @@ public class ClientView extends JFrame {
         loginButton = new JButton("Login");
         registerButton = new JButton("Register");
 
-        loginPanel.add(new JLabel("Welcome to the App!", SwingConstants.CENTER));
+        loginPanel.add(new JLabel("Welcome to the Game!", SwingConstants.CENTER));
         loginPanel.add(loginButton);
         loginPanel.add(registerButton);
 
@@ -54,29 +41,53 @@ public class ClientView extends JFrame {
         roomPanel.add(createRoomButton);
         roomPanel.add(joinRoomButton);
 
+        questionLabel = new JLabel("Question will appear here", SwingConstants.CENTER);
+        questionLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        answerButton1 = new JButton("Answer 1");
+        answerButton2 = new JButton("Answer 2");
+        answerButton3 = new JButton("Answer 3");
+        answerButton4 = new JButton("Answer 4");
+
+        JPanel answerPanel = new JPanel();
+        answerPanel.setLayout(new GridLayout(2, 2));
+        answerPanel.add(answerButton1);
+        answerPanel.add(answerButton2);
+        answerPanel.add(answerButton3);
+        answerPanel.add(answerButton4);
+
+        questionPanel = new JPanel();
+        questionPanel.setLayout(new BorderLayout());
+        questionPanel.add(questionLabel, BorderLayout.NORTH);
+        questionPanel.add(answerPanel, BorderLayout.CENTER);
+
+        messageArea = new JTextArea();
+        messageArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(chatPanel, BorderLayout.CENTER);
         mainPanel.add(loginPanel, BorderLayout.WEST);
         mainPanel.add(roomPanel, BorderLayout.EAST);
+        mainPanel.add(questionPanel, BorderLayout.CENTER);
+        mainPanel.add(scrollPane, BorderLayout.SOUTH);
 
         add(mainPanel);
         setVisible(true);
     }
 
-    public void displayMessage(String message) {
-        chatArea.append(message + "\n");
+    public void setQuestion(String question, String[] answers) {
+        questionLabel.setText(question);
+        answerButton1.setText(answers[0]);
+        answerButton2.setText(answers[1]);
+        answerButton3.setText(answers[2]);
+        answerButton4.setText(answers[3]);
     }
 
-    public String getInputText() {
-        return inputField.getText();
-    }
-
-    public void clearInputText() {
-        inputField.setText("");
-    }
-
-    public void addSendButtonListener(ActionListener listener) {
-        sendButton.addActionListener(listener);
+    public void addAnswerButtonListener(ActionListener listener) {
+        answerButton1.addActionListener(listener);
+        answerButton2.addActionListener(listener);
+        answerButton3.addActionListener(listener);
+        answerButton4.addActionListener(listener);
     }
 
     public void addLoginButtonListener(ActionListener listener) {
@@ -103,9 +114,15 @@ public class ClientView extends JFrame {
         roomPanel.setVisible(show);
     }
 
-    public void enableChat(boolean enable) {
-        inputField.setEnabled(enable);
-        sendButton.setEnabled(enable);
-        chatArea.setEnabled(enable);
+    public void enableQuestionPanel(boolean enable) {
+        questionLabel.setEnabled(enable);
+        answerButton1.setEnabled(enable);
+        answerButton2.setEnabled(enable);
+        answerButton3.setEnabled(enable);
+        answerButton4.setEnabled(enable);
+    }
+
+    public void displayMessage(String message) {
+        messageArea.append(message + "\n");
     }
 }
