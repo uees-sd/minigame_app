@@ -19,7 +19,7 @@ public class ServerController {
     public void startServer(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            
+
             while (true) {
                 Socket clientSocket = serverSocket.accept();
 

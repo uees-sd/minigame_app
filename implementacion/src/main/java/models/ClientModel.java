@@ -45,7 +45,9 @@ public class ClientModel {
     }
 
     public void createRoom() {
-        out.println("CREATE_ROOM|" + username);
+        if (username != null) { // Ensure username is set
+            out.println("CREATE_ROOM|" + username);
+        }
     }
 
     public void joinRoom(String roomCode) {

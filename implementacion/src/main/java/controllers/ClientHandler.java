@@ -5,18 +5,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import models.ServerModel;
 
 public class ClientHandler extends Thread {
     private Socket clientSocket;
     private ServerModel model;
-    private ServerController controller; // Agregar esta línea
+    private ServerController controller;
     private PrintWriter out;
     private BufferedReader in;
     private String roomCode;
+    private String currentQuestion;
+    private String[] currentAnswers;
 
-    // Constructor modificado para aceptar ServerController
     public ClientHandler(Socket socket, ServerModel model, ServerController controller) {
         this.clientSocket = socket;
         this.model = model;
@@ -62,7 +62,6 @@ public class ClientHandler extends Thread {
         String roomCode = generateRoomCode();
         model.addClient(this, roomCode);
         sendMessage("Room created with code: " + roomCode);
-        // Send initial question to room
         sendMessage("QUESTION|What is 2+2?|3|4|5|6");
     }
 

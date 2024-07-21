@@ -13,7 +13,6 @@ import org.bson.Document;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.*;
 
 public class ClientController {
@@ -64,15 +63,23 @@ public class ClientController {
         view.addCreateRoomButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                model.createRoom();
+                if (isLoggedIn) {
+                    model.createRoom();
+                } else {
+                    JOptionPane.showMessageDialog(view, "Please login to create a room.");
+                }
             }
         });
 
         view.addJoinRoomButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String roomCode = JOptionPane.showInputDialog(view, "Enter room code:");
-                model.joinRoom(roomCode);
+                if (isLoggedIn) {
+                    String roomCode = JOptionPane.showInputDialog(view, "Enter room code:");
+                    model.joinRoom(roomCode);
+                } else {
+                    JOptionPane.showMessageDialog(view, "Please login to join a room.");
+                }
             }
         });
     }
@@ -87,12 +94,12 @@ public class ClientController {
             while (true) {
                 String message = model.receiveMessage();
                 if (message != null) {
-                    // Parse and handle the received message
-                    // Example: "QUESTION|What is 2+2?|3|4|5|6"
                     String[] parts = message.split("\\|");
                     if (parts[0].equals("QUESTION")) {
                         view.setQuestion(parts[1], new String[]{parts[2], parts[3], parts[4], parts[5]});
                         view.enableQuestionPanel(true);
+                    } else if (parts[0].equals("ANSWER")) {
+                        view.displayMessage(parts[1]); // Display who answered
                     }
                 }
             }
