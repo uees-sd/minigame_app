@@ -11,6 +11,7 @@ public class ClientModel {
     private PrintWriter out;
     private BufferedReader in;
     private String username;
+    private String roomCode;
 
     public void setUsername(String username) {
         this.username = username;
@@ -27,7 +28,7 @@ public class ClientModel {
     }
 
     public void sendMessage(String message) {
-        out.println(username + ": " + message);
+        out.println("MESSAGE|" + roomCode + "|" + username + ": " + message);
     }
 
     public String receiveMessage() {
@@ -37,5 +38,14 @@ public class ClientModel {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void createRoom() {
+        out.println("CREATE_ROOM|" + username);
+    }
+
+    public void joinRoom(String roomCode) {
+        this.roomCode = roomCode;
+        out.println("JOIN_ROOM|" + roomCode + "|" + username);
     }
 }

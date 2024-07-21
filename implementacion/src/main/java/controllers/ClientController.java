@@ -31,17 +31,16 @@ public class ClientController {
         this.database = mongoClient.getDatabase("chat_app");
         this.usersCollection = database.getCollection("users");
 
-        // Deshabilitar el área de chat inicialmente
         view.enableChat(false);
+        view.showRoomOptions(false);
 
-        // Agregar listener para el botón de enviar mensaje
         view.addSendButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (isLoggedIn) {
                     String message = view.getInputText();
                     model.sendMessage(message);
-                    view.displayMessage("Me: " + message); // Mostrar el mensaje en la vista inmediatamente
+                    view.displayMessage("Me: " + message);
                     view.clearInputText();
                 } else {
                     JOptionPane.showMessageDialog(view, "Please login to send messages.");
@@ -49,7 +48,6 @@ public class ClientController {
             }
         });
 
-        // Agregar listener para el botón de inicio de sesión
         view.addLoginButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -57,19 +55,31 @@ public class ClientController {
             }
         });
 
-        // Agregar listener para el botón de registro
         view.addRegisterButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showRegisterDialog();
             }
         });
+
+        view.addCreateRoomButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                model.createRoom();
+            }
+        });
+
+        view.addJoinRoomButtonListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String roomCode = JOptionPane.showInputDialog(view, "Enter room code:");
+                model.joinRoom(roomCode);
+            }
+        });
     }
 
     public void startClient(String ip, int port) {
         model.connectToServer(ip, port);
-
-        // Iniciar hilo para recibir mensajes del servidor
         startMessageReceiverThread();
     }
 
@@ -88,7 +98,6 @@ public class ClientController {
         String username = JOptionPane.showInputDialog(view, "Enter your username:");
         String password = JOptionPane.showInputDialog(view, "Enter your password:");
 
-        // Verificar la autenticación con MongoDB
         Document user = usersCollection.find(Filters.and(
                 Filters.eq("username", username),
                 Filters.eq("password", password)
@@ -98,8 +107,9 @@ public class ClientController {
             model.setUsername(username);
             view.displayMessage("Logged in as: " + username);
             isLoggedIn = true;
-            view.showLoginPanel(false); // Ocultar el panel de login
-            view.enableChat(true); // Habilitar el área de chat
+            view.showLoginPanel(false);
+            view.enableChat(true);
+            view.showRoomOptions(true);
         } else {
             view.displayMessage("Invalid credentials. Please try again.");
         }
@@ -109,14 +119,12 @@ public class ClientController {
         String username = JOptionPane.showInputDialog(view, "Enter a new username:");
         String password = JOptionPane.showInputDialog(view, "Enter a new password:");
 
-        // Verificar si el usuario ya existe
         Document existingUser = usersCollection.find(Filters.eq("username", username)).first();
         if (existingUser != null) {
             view.displayMessage("Username already exists. Please choose another one.");
             return;
         }
 
-        // Registrar nuevo usuario en MongoDB
         Document newUser = new Document("username", username)
                 .append("password", password);
         usersCollection.insertOne(newUser);

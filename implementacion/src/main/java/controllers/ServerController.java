@@ -1,4 +1,5 @@
 package controllers;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,16 +21,19 @@ public class ServerController {
             ServerSocket serverSocket = new ServerSocket(port);
             
             while (true) {
-                Socket clientSocket = serverSocket.accept(); // Wait for incoming connections
+                Socket clientSocket = serverSocket.accept();
 
                 // Create a new ClientHandler for each client
                 ClientHandler clientHandler = new ClientHandler(clientSocket, model, this);
-                model.addClient(clientHandler);
-                clientHandler.start();
+                new Thread(() -> handleClient(clientHandler)).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleClient(ClientHandler clientHandler) {
+        clientHandler.start();
     }
 
     public void displayMessage(String message) {

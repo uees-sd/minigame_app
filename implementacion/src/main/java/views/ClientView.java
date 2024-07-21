@@ -10,14 +10,16 @@ public class ClientView extends JFrame {
     private JButton sendButton;
     private JButton loginButton;
     private JButton registerButton;
+    private JButton createRoomButton;
+    private JButton joinRoomButton;
     private JPanel loginPanel;
+    private JPanel roomPanel;
 
     public ClientView() {
         setTitle("Chat Client");
-        setSize(600, 400); // Tamaño ajustado
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Panel para el chat
         JPanel chatPanel = new JPanel();
         chatPanel.setLayout(new BorderLayout());
 
@@ -35,9 +37,8 @@ public class ClientView extends JFrame {
         chatPanel.add(new JScrollPane(chatArea), BorderLayout.CENTER);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
-        // Panel para login y registro
         loginPanel = new JPanel();
-        loginPanel.setLayout(new GridLayout(3, 1)); // Ajuste de diseño para botones
+        loginPanel.setLayout(new GridLayout(3, 1));
 
         loginButton = new JButton("Login");
         registerButton = new JButton("Register");
@@ -46,9 +47,17 @@ public class ClientView extends JFrame {
         loginPanel.add(loginButton);
         loginPanel.add(registerButton);
 
+        roomPanel = new JPanel();
+        roomPanel.setLayout(new GridLayout(2, 1));
+        createRoomButton = new JButton("Create Room");
+        joinRoomButton = new JButton("Join Room");
+        roomPanel.add(createRoomButton);
+        roomPanel.add(joinRoomButton);
+
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(chatPanel, BorderLayout.CENTER);
-        mainPanel.add(loginPanel, BorderLayout.WEST); // Panel de login a la izquierda
+        mainPanel.add(loginPanel, BorderLayout.WEST);
+        mainPanel.add(roomPanel, BorderLayout.EAST);
 
         add(mainPanel);
         setVisible(true);
@@ -78,8 +87,20 @@ public class ClientView extends JFrame {
         registerButton.addActionListener(listener);
     }
 
+    public void addCreateRoomButtonListener(ActionListener listener) {
+        createRoomButton.addActionListener(listener);
+    }
+
+    public void addJoinRoomButtonListener(ActionListener listener) {
+        joinRoomButton.addActionListener(listener);
+    }
+
     public void showLoginPanel(boolean show) {
         loginPanel.setVisible(show);
+    }
+
+    public void showRoomOptions(boolean show) {
+        roomPanel.setVisible(show);
     }
 
     public void enableChat(boolean enable) {
