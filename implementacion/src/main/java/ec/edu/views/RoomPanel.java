@@ -10,8 +10,6 @@ import ec.edu.controllers.ClientController;
 
 public class RoomPanel extends JPanel {
     private ClientController client;
-    private JList<String> userList;
-    private DefaultListModel<String> userListModel;
     private Image backgroundImage;
     private Map<String, Color> userColors;
     private Random random;
@@ -55,37 +53,14 @@ public class RoomPanel extends JPanel {
         gbc.gridy = 1;
         add(joinRoomButton, gbc);
 
-        JButton leaveRoomButton = new JButton("Leave Room");
-        styleButton(leaveRoomButton);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        add(leaveRoomButton, gbc);
-
-        JButton startGameButton = new JButton("Start Game");
-        styleButton(startGameButton);
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        add(startGameButton, gbc);
-
-        userListModel = new DefaultListModel<>();
-        userList = new JList<>(userListModel);
-        userList.setFont(new Font("Arial", Font.PLAIN, 14));
-        userList.setForeground(new Color(0, 51, 102));
-        userList.setBorder(new LineBorder(new Color(0, 51, 102), 1));
-        userList.setCellRenderer(new UserCellRenderer());
-        JScrollPane userScrollPane = new JScrollPane(userList);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        add(userScrollPane, gbc);
+        // Removed buttons for Leave Room and Start Game
 
         createRoomButton.addActionListener(e -> {
             String roomCode = roomField.getText().trim();
             if (!roomCode.isEmpty()) {
                 client.setCurrentRoomCode(roomCode);
                 client.sendMessage("CREATE_ROOM:" + roomCode + ":" + client.getUsername());
+                client.switchToGamePanel();
             }
         });
 
@@ -94,18 +69,11 @@ public class RoomPanel extends JPanel {
             if (!roomCode.isEmpty()) {
                 client.setCurrentRoomCode(roomCode);
                 client.sendMessage("JOIN_ROOM:" + roomCode + ":" + client.getUsername());
+                client.switchToGamePanel();
             }
         });
 
-        leaveRoomButton.addActionListener(e -> {
-            if (client.getCurrentRoomCode() != null) {
-                client.sendMessage("LEAVE_ROOM:" + client.getCurrentRoomCode() + ":" + client.getUsername());
-                client.setCurrentRoomCode(null);
-                userListModel.clear();
-            }
-        });
-
-        startGameButton.addActionListener(e -> client.switchToGamePanel());
+        // Removed ActionListener for Leave Room and Start Game buttons
     }
 
     @Override
@@ -129,12 +97,12 @@ public class RoomPanel extends JPanel {
         if (!userColors.containsKey(username)) {
             userColors.put(username, getRandomColor());
         }
-        userListModel.addElement(username);
+        // Removed userListModel and userList handling
     }
 
     public void removeUser(String username) {
-        userListModel.removeElement(username);
         userColors.remove(username);
+        // Removed userListModel handling
     }
 
     private Color getRandomColor() {
@@ -144,27 +112,9 @@ public class RoomPanel extends JPanel {
         return Color.getHSBColor(hue, saturation, brightness);
     }
 
-    private class UserCellRenderer extends DefaultListCellRenderer {
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (component instanceof JLabel) {
-                JLabel label = (JLabel) component;
-                String username = (String) value;
-                label.setForeground(userColors.get(username));
-                label.setFont(new Font("Arial", Font.BOLD, 14));
-            }
-            return component;
-        }
-    }
+    // Removed UserCellRenderer class
 
     public void updateUserList(String[] usernames) {
-        // Update the list of users in the panel
-        // Clear existing list and add new users
-        userListModel.clear();
-        for (String username : usernames) {
-            userListModel.addElement(username);
-        }
+        // This method can be removed or kept for future use
     }
-    
 }

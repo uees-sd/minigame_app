@@ -10,12 +10,15 @@ public class GamePanel extends JPanel {
     private JButton[] cardButtons;
     private JButton leaveRoomButton;
     private JLabel messageLabel;
+    private DefaultListModel<String> userListModel;
+    private JList<String> userList;
 
     public GamePanel(ClientController client) {
         this.client = client;
         setLayout(new BorderLayout());
         setBackground(new Color(240, 248, 255));
 
+        // Initialize components
         JLabel referenceLabel = new JLabel("Select a card:");
         referenceLabel.setFont(new Font("Arial", Font.BOLD, 16));
         referenceLabel.setForeground(new Color(0, 51, 102));
@@ -58,6 +61,15 @@ public class GamePanel extends JPanel {
         messageLabel.setHorizontalAlignment(JLabel.CENTER);
         messageLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(messageLabel, BorderLayout.SOUTH);
+
+        // Initialize user list components
+        userListModel = new DefaultListModel<>();
+        userList = new JList<>(userListModel);
+        userList.setFont(new Font("Arial", Font.PLAIN, 14));
+        userList.setForeground(new Color(0, 51, 102));
+        userList.setBorder(new LineBorder(new Color(0, 51, 102), 1));
+        JScrollPane userScrollPane = new JScrollPane(userList);
+        add(userScrollPane, BorderLayout.EAST);
     }
 
     private void styleButton(JButton button) {
@@ -73,5 +85,12 @@ public class GamePanel extends JPanel {
 
     public void updateMessage(String message) {
         messageLabel.setText(message);
+    }
+
+    public void updateUserList(String[] users) {
+        userListModel.clear();
+        for (String user : users) {
+            userListModel.addElement(user);
+        }
     }
 }

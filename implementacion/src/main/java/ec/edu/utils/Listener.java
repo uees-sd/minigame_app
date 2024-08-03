@@ -30,7 +30,7 @@ public class Listener implements Runnable {
     private void handleMessage(String message) {
         String[] parts = message.split(":");
         String command = parts[0];
-    
+
         switch (command) {
             case "AUTH_SUCCESS":
                 clientController.switchToRoomPanel();
@@ -47,15 +47,15 @@ public class Listener implements Runnable {
                 break;
             case "USER_JOINED":
                 String usernameJoined = parts[1];
-                clientController.roomPanel.addUser(usernameJoined);
+                clientController.gamePanel.updateUserList(new String[] { usernameJoined });
                 break;
             case "USER_LEFT":
                 String usernameLeft = parts[1];
-                clientController.roomPanel.removeUser(usernameLeft);
+                clientController.gamePanel.updateUserList(new String[] { usernameLeft });
                 break;
             case "USER_LIST":
                 String[] users = parts[1].split(",");
-                clientController.roomPanel.updateUserList(users);
+                clientController.gamePanel.updateUserList(users);
                 break;
             case "SELECT_CARD":
                 handleSelectCardMessage(parts);
@@ -69,7 +69,7 @@ public class Listener implements Runnable {
             // Handle other messages as needed
         }
     }
-    
+
     private void handleSelectCardMessage(String[] parts) {
         if (parts.length >= 4) {
             String username = parts[2];
