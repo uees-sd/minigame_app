@@ -157,4 +157,14 @@ public class RoomPanel extends JPanel {
             return component;
         }
     }
+
+    public void updateUserList(String[] usernames) {
+        // Update the list of users in the panel
+        // Clear existing list and add new users
+        userListModel.clear();
+        for (String username : usernames) {
+            userListModel.addElement(username);
+        }
+    }
+    
 }

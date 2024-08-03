@@ -4,17 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.*;
-import com.mongodb.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 
 import ec.edu.utils.Listener;
 import ec.edu.views.GamePanel;
 import ec.edu.views.LoginPanel;
 import ec.edu.views.RegisterPanel;
 import ec.edu.views.RoomPanel;
-
-import org.bson.Document;
 
 public class ClientController {
     private static final String SERVER_ADDRESS = "localhost";
@@ -31,7 +26,6 @@ public class ClientController {
 
     private String username;
     private String currentRoomCode;
-
 
     public void start() throws IOException {
         socket = new DatagramSocket();
@@ -58,6 +52,10 @@ public class ClientController {
     }
 
     public void sendMessage(String message) {
+        if (username == null || username.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Please login first.");
+            return;
+        }
         try {
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, SERVER_PORT);
@@ -66,6 +64,7 @@ public class ClientController {
             e.printStackTrace();
         }
     }
+    
 
     public void switchToLoginPanel() {
         CardLayout cl = (CardLayout) frame.getContentPane().getLayout();
@@ -87,31 +86,53 @@ public class ClientController {
         cl.show(frame.getContentPane(), "game");
     }
 
-    public boolean authenticateUser(String username, String password) {
-        try (MongoClient mongoClient = new MongoClient("localhost", 27017)) {
-            MongoDatabase database = mongoClient.getDatabase("mathquizdb");
-            MongoCollection<Document> collection = database.getCollection("users");
+    public void authenticateUser(String username, String password) {
+        this.username = username; // Set username from login
+        sendMessage("AUTHENTICATE_USER:" + username + ":" + password);
+    }
 
-            Document query = new Document("username", username).append("password", password);
-            Document user = collection.find(query).first();
+    public void registerUser(String username, String password) {
+        sendMessage("REGISTER_USER:" + username + ":" + password);
+    }
 
-            return user != null;
+    public void createRoom(String roomCode) {
+        if (roomCode == null || roomCode.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Room code cannot be empty.");
+            return;
+        }
+        if (username != null && !username.isEmpty()) {
+            sendMessage("CREATE_ROOM:" + roomCode + ":" + username);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Username is not set.");
+        }
+    }
+    
+    public void joinRoom(String roomCode) {
+        if (roomCode == null || roomCode.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Room code cannot be empty.");
+            return;
+        }
+        if (username != null && !username.isEmpty()) {
+            sendMessage("JOIN_ROOM:" + roomCode + ":" + username);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Username is not set.");
+        }
+    }
+    
+
+    public void leaveRoom(String roomCode) {
+        if (username != null && !username.isEmpty()) {
+            sendMessage("LEAVE_ROOM:" + roomCode + ":" + username);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Username is not set.");
         }
     }
 
-    public boolean registerUser(String username, String password) {
-        try (MongoClient mongoClient = new MongoClient("localhost", 27017)) {
-            MongoDatabase database = mongoClient.getDatabase("mathquizdb");
-            MongoCollection<Document> collection = database.getCollection("users");
-
-            Document existingUser = collection.find(new Document("username", username)).first();
-            if (existingUser != null) {
-                return false;
-            }
-
-            Document newUser = new Document("username", username).append("password", password);
-            collection.insertOne(newUser);
-            return true;
+    public void selectCard(String roomCode, String card) {
+        if (username != null && !username.isEmpty()) {
+            sendMessage("SELECT_CARD:" + roomCode + ":" + username + ":" + card);
+        } else {
+            JOptionPane.showMessageDialog(frame, "Username is not set.");
         }
     }
 
