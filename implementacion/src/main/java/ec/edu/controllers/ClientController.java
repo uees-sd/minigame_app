@@ -12,7 +12,6 @@ import ec.edu.views.RegisterPanel;
 import ec.edu.views.RoomPanel;
 
 public class ClientController {
-    private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 90;
 
     public DatagramSocket socket;
@@ -29,7 +28,6 @@ public class ClientController {
 
     public void start() throws IOException {
         socket = new DatagramSocket();
-        address = InetAddress.getByName(SERVER_ADDRESS);
 
         frame = new JFrame("Card Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,6 +49,15 @@ public class ClientController {
         new Thread(new Listener(this)).start();
     }
 
+    public void setServerAddress(String serverAddress) {
+        try {
+            address = InetAddress.getByName(serverAddress);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Invalid IP address.");
+        }
+    }
+
     public void sendMessage(String message) {
         if (username == null || username.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Please login first.");
@@ -64,7 +71,6 @@ public class ClientController {
             e.printStackTrace();
         }
     }
-    
 
     public void switchToLoginPanel() {
         CardLayout cl = (CardLayout) frame.getContentPane().getLayout();
@@ -106,7 +112,7 @@ public class ClientController {
             JOptionPane.showMessageDialog(frame, "Username is not set.");
         }
     }
-    
+
     public void joinRoom(String roomCode) {
         if (roomCode == null || roomCode.trim().isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Room code cannot be empty.");
@@ -118,7 +124,6 @@ public class ClientController {
             JOptionPane.showMessageDialog(frame, "Username is not set.");
         }
     }
-    
 
     public void leaveRoom(String roomCode) {
         if (username != null && !username.isEmpty()) {

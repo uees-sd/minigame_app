@@ -9,6 +9,7 @@ public class LoginPanel extends JPanel {
     private ClientController controller;
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private JTextField ipField;
     private JButton loginButton;
     private JButton registerButton;
     private Image backgroundImage;
@@ -34,6 +35,17 @@ public class LoginPanel extends JPanel {
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
+        JLabel ipLabel = new JLabel("Server IP:");
+        ipLabel.setForeground(Color.WHITE);
+        add(ipLabel, gbc);
+
+        ipField = new JTextField("localhost",20);
+        ipField.setBorder(new LineBorder(Color.WHITE));
+        gbc.gridx = 1;
+        add(ipField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         JLabel usernameLabel = new JLabel("Username:");
         usernameLabel.setForeground(Color.WHITE);
         add(usernameLabel, gbc);
@@ -44,7 +56,7 @@ public class LoginPanel extends JPanel {
         add(usernameField, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         JLabel passwordLabel = new JLabel("Password:");
         passwordLabel.setForeground(Color.WHITE);
         add(passwordLabel, gbc);
@@ -55,17 +67,19 @@ public class LoginPanel extends JPanel {
         add(passwordField, gbc);
 
         loginButton = new JButton("Login");
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         add(loginButton, gbc);
 
         registerButton = new JButton("Register");
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         add(registerButton, gbc);
 
         loginButton.addActionListener(e -> {
+            String ip = ipField.getText();
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
+            controller.setServerAddress(ip);
             controller.authenticateUser(username, password);
         });
 
