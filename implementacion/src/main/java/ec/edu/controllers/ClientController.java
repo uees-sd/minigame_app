@@ -2,6 +2,8 @@ package ec.edu.controllers;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.*;
 
@@ -45,6 +47,16 @@ public class ClientController {
 
         frame.setSize(800, 600);
         frame.setVisible(true);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (currentRoomCode != null && username != null) {
+                    leaveRoom(currentRoomCode); // Notify server that user is leaving the room
+                }
+                socket.close(); // Close the socket when the window is closing
+            }
+        });
 
         new Thread(new Listener(this)).start();
     }
