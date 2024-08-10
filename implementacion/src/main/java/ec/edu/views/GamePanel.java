@@ -7,8 +7,7 @@ import ec.edu.controllers.ClientController;
 
 public class GamePanel extends JPanel {
     private ClientController client;
-    private JButton[] cardButtons;
-    private JButton leaveRoomButton;
+    private JButton abandonGameButton;
     private JLabel messageLabel;
     private DefaultListModel<String> userListModel;
     private JList<String> userList;
@@ -30,7 +29,7 @@ public class GamePanel extends JPanel {
         cardPanel.setLayout(new GridLayout(2, 5, 10, 10));
         cardPanel.setBackground(new Color(240, 248, 255));
         cardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        cardButtons = new JButton[10];
+        JButton[] cardButtons = new JButton[10];
         for (int i = 0; i < 10; i++) {
             cardButtons[i] = new JButton("Card " + (i + 1));
             styleButton(cardButtons[i]);
@@ -44,18 +43,18 @@ public class GamePanel extends JPanel {
         }
         add(cardPanel, BorderLayout.CENTER);
 
-        leaveRoomButton = new JButton("Leave Room");
-        styleButton(leaveRoomButton);
-        leaveRoomButton.addActionListener(e -> {
+        abandonGameButton = new JButton("Abandonar Partida");
+        styleButton(abandonGameButton);
+        abandonGameButton.addActionListener(e -> {
             if (client.getCurrentRoomCode() != null) {
                 client.sendMessage("LEAVE_ROOM:" + client.getCurrentRoomCode() + ":" + client.getUsername());
                 client.setCurrentRoomCode(null);
                 client.switchToRoomPanel(); // Switch back to RoomPanel
             }
         });
-        add(leaveRoomButton, BorderLayout.SOUTH);
+        add(abandonGameButton, BorderLayout.SOUTH);
 
-        messageLabel = new JLabel("Waiting answers");
+        messageLabel = new JLabel("Waiting for answers...");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         messageLabel.setForeground(new Color(0, 51, 102));
         messageLabel.setHorizontalAlignment(JLabel.CENTER);
