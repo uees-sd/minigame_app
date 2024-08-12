@@ -51,40 +51,42 @@ public class ServerController {
         System.out.println("Received message: " + message + " from " + address + ":" + port);
         String[] parts = message.split(":");
         String command = parts[0];
-
+    
         switch (command) {
             case "CREATE_ROOM":
-                System.out.println("Create Room Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
                 createRoom(parts[1], address, port, parts[2]);
                 break;
             case "JOIN_ROOM":
-                System.out.println("Join Room Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
                 joinRoom(parts[1], address, port, parts[2]);
                 break;
             case "LEAVE_ROOM":
-                System.out.println("Leave Room Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
                 leaveRoom(parts[1], address, port, parts[2]);
                 break;
             case "SELECT_CARD":
-                System.out.println("Select Card Command: RoomCode=" + parts[1] + ", Username=" + parts[2] + ", Card=" + parts[3]);
                 selectCard(parts[1], parts[2], Integer.parseInt(parts[3]), address, port);
                 break;
             case "PASS":
-                System.out.println("Pass Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
                 pass(parts[1], address, port);
                 break;
             case "SKIP":
-                System.out.println("Skip Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
-                pass(parts[1], address, port); // Reuse pass logic for skip
+                skip(parts[1], address, port); 
                 break;
             case "AUTHENTICATE_USER":
-                System.out.println("Authenticate User Command: Username=" + parts[1]);
                 authenticateUser(parts[1], parts[2], address, port);
                 break;
             case "REGISTER_USER":
-                System.out.println("Register User Command: Username=" + parts[1]);
                 registerUser(parts[1], parts[2], address, port);
                 break;
+        }
+    }
+    private void skip(String roomCode, InetAddress address, int port) throws IOException {
+        if (rooms.containsKey(roomCode)) {
+            int newSum = generateNewSum();
+            currentSums.put(roomCode, newSum);
+            // Notify only the player who issued the skip command
+            sendMessage(address, port, "NEW_SUM:" + newSum);
+        } else {
+            sendMessage(address, port, "SKIP_FAIL");
         }
     }
 
