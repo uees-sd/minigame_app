@@ -3,6 +3,8 @@ package ec.edu.views;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +20,8 @@ public class GamePanel extends JPanel {
     private DefaultListModel<String> userListModel;
     private JList<String> userList;
     private Set<Integer> blockedCards;
+    private Timer actionTimer; // Timer for Pass and Skip buttons
+    private int remainingTime = 15; // Track remaining time
 
     public GamePanel(ClientController client) {
         this.client = client;
@@ -56,20 +60,12 @@ public class GamePanel extends JPanel {
 
         passButton = new JButton("Pass");
         styleButton(passButton);
-        passButton.addActionListener(e -> {
-            if (client.getCurrentRoomCode() != null) {
-                client.sendMessage("PASS:" + client.getCurrentRoomCode() + ":" + client.getUsername());
-            }
-        });
+        passButton.addActionListener(e -> handlePassAction());
         bottomPanel.add(passButton);
 
         skipButton = new JButton("Skip"); // New Skip Button
         styleButton(skipButton);
-        skipButton.addActionListener(e -> {
-            if (client.getCurrentRoomCode() != null) {
-                client.sendMessage("SKIP:" + client.getCurrentRoomCode() + ":" + client.getUsername());
-            }
-        });
+        skipButton.addActionListener(e -> handleSkipAction());
         bottomPanel.add(skipButton);
 
         messageLabel = new JLabel("Waiting for answers...");
@@ -89,6 +85,21 @@ public class GamePanel extends JPanel {
         userList.setBorder(new LineBorder(new Color(0, 51, 102), 1));
         JScrollPane userScrollPane = new JScrollPane(userList);
         add(userScrollPane, BorderLayout.EAST);
+
+        // Initialize the timer for Pass and Skip buttons
+        actionTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (remainingTime <= 0) {
+                    actionTimer.stop();
+                    enableActionButtons();
+                    messageLabel.setText("Es tu turno.");
+                } else {
+                    messageLabel.setText("Tiempo restante: " + remainingTime + " segundos");
+                    remainingTime--;
+                }
+            }
+        });
     }
 
     private void styleButton(JButton button) {
@@ -100,6 +111,36 @@ public class GamePanel extends JPanel {
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setOpaque(true);
+    }
+
+    private void handlePassAction() {
+        if (client.getCurrentRoomCode() != null) {
+            client.sendMessage("PASS:" + client.getCurrentRoomCode() + ":" + client.getUsername());
+            restartActionTimer();
+        }
+    }
+
+    private void handleSkipAction() {
+        if (client.getCurrentRoomCode() != null) {
+            client.sendMessage("SKIP:" + client.getCurrentRoomCode() + ":" + client.getUsername());
+            restartActionTimer();
+        }
+    }
+
+    private void restartActionTimer() {
+        if (actionTimer.isRunning()) {
+            actionTimer.stop();
+        }
+        remainingTime = 15; // Reset remaining time to 15 seconds
+        actionTimer.start(); // Start the timer
+        passButton.setEnabled(false);
+        skipButton.setEnabled(false);
+    }
+
+    private void enableActionButtons() {
+        passButton.setEnabled(true);
+        skipButton.setEnabled(true);
+        messageLabel.setText("Waiting for answers...");
     }
 
     public void updateMessage(String message) {
@@ -128,3 +169,4 @@ public class GamePanel extends JPanel {
         }
     }
 }
+
