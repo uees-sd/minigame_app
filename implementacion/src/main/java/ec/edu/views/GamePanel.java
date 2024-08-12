@@ -12,15 +12,15 @@ import ec.edu.controllers.ClientController;
 
 public class GamePanel extends JPanel {
     private ClientController client;
-    private JButton abandonGameButton;
+    private JButton abandonGameButton;  // Abandon Game Button
     private JButton passButton;
-    private JButton skipButton; // New Skip Button
+    private JButton skipButton; // Skip Button
     private JLabel messageLabel;
     private JLabel sumLabel;
     private DefaultListModel<String> userListModel;
     private JList<String> userList;
     private Set<Integer> blockedCards;
-    private JProgressBar progressBar; // New Progress Bar
+    private JProgressBar progressBar; // Progress Bar
     private Timer actionTimer; // Timer for Pass and Skip buttons
     private int remainingTime = 3; // Track remaining time
 
@@ -57,14 +57,14 @@ public class GamePanel extends JPanel {
         add(cardPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(2, 2)); // Adjust layout for progress bar and buttons
+        bottomPanel.setLayout(new GridLayout(2, 3)); // Adjust layout to accommodate the new button
 
         passButton = new JButton("Pass");
         styleButton(passButton);
         passButton.addActionListener(e -> handlePassAction());
         bottomPanel.add(passButton);
 
-        skipButton = new JButton("Skip"); // New Skip Button
+        skipButton = new JButton("Skip");
         styleButton(skipButton);
         skipButton.addActionListener(e -> handleSkipAction());
         bottomPanel.add(skipButton);
@@ -80,6 +80,11 @@ public class GamePanel extends JPanel {
         messageLabel.setHorizontalAlignment(JLabel.CENTER);
         messageLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         bottomPanel.add(messageLabel);
+
+        abandonGameButton = new JButton("Abandon Game"); // New Abandon Game Button
+        styleButton(abandonGameButton);
+        abandonGameButton.addActionListener(e -> handleAbandonGameAction());
+        bottomPanel.add(abandonGameButton);
 
         add(bottomPanel, BorderLayout.SOUTH);
 
@@ -130,6 +135,16 @@ public class GamePanel extends JPanel {
         if (client.getCurrentRoomCode() != null) {
             client.sendMessage("SKIP:" + client.getCurrentRoomCode() + ":" + client.getUsername());
             restartActionTimer();
+        }
+    }
+
+    private void handleAbandonGameAction() {
+        if (client.getCurrentRoomCode() != null) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to abandon the game?", "Confirm Abandon", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                client.sendMessage("LEAVE_ROOM:" + client.getCurrentRoomCode() + ":" + client.getUsername());
+                client.switchToRoomPanel(); // Redirect to room selection panel
+            }
         }
     }
 
