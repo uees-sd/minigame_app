@@ -157,7 +157,7 @@ public class GamePanel extends JPanel {
     }
 
     public void updateSum(int a, int b) {
-        sumLabel.setText("Sum: " + a + " + " + b + " = " + (a + b) + " | Progress: " + progress + "%");
+        sumLabel.setText("Sum: " + a + " + " + b + " = ? " + " | Progress: " + progress + "%");
     }
 
     public void updateProgress() {
