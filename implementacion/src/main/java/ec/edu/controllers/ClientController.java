@@ -6,6 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.*;
+import java.util.Random;
 
 import ec.edu.utils.Listener;
 import ec.edu.views.GamePanel;
@@ -27,6 +28,8 @@ public class ClientController {
 
     private String username;
     private String currentRoomCode;
+    private int currentA;
+    private int currentB;
 
     public void start() throws IOException {
         socket = new DatagramSocket();
@@ -70,20 +73,6 @@ public class ClientController {
         }
     }
 
-    public void sendMessage(String message) {
-        if (username == null || username.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, "Please login first.");
-            return;
-        }
-        try {
-            byte[] buffer = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, SERVER_PORT);
-            socket.send(packet);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void switchToLoginPanel() {
         CardLayout cl = (CardLayout) frame.getContentPane().getLayout();
         cl.show(frame.getContentPane(), "login");
@@ -102,6 +91,7 @@ public class ClientController {
     public void switchToGamePanel() {
         CardLayout cl = (CardLayout) frame.getContentPane().getLayout();
         cl.show(frame.getContentPane(), "game");
+        generateNewSum(); // Generate a new sum when the game panel is shown
     }
 
     public void authenticateUser(String username, String password) {
@@ -167,5 +157,40 @@ public class ClientController {
 
     public void setCurrentRoomCode(String currentRoomCode) {
         this.currentRoomCode = currentRoomCode;
+    }
+
+    public void generateNewSum() {
+        Random random = new Random();
+        do {
+            currentA = random.nextInt(10);
+            currentB = random.nextInt(10);
+        } while (currentA + currentB < 1 || currentA + currentB > 10);
+        gamePanel.updateSum(currentA, currentB);
+    }
+
+    // Modify sendMessage to handle PASS and SKIP correctly
+    public void sendMessage(String message) {
+        if (username == null || username.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Please login first.");
+            return;
+        }
+        try {
+            byte[] buffer = message.getBytes();
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, SERVER_PORT);
+            socket.send(packet);
+
+            if (message.startsWith("SELECT_CARD:")) {
+                String[] parts = message.split(":");
+                int cardNumber = Integer.parseInt(parts[3]);
+                if (cardNumber == (currentA + currentB)) {
+                    gamePanel.blockCard(cardNumber);
+                    generateNewSum();
+                }
+            } else if (message.startsWith("PASS:") || message.startsWith("SKIP:")) { // Handle SKIP
+                generateNewSum();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

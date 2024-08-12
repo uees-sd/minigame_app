@@ -22,6 +22,9 @@ public class ServerController {
     private MongoDatabase database;
     private MongoCollection<Document> usersCollection;
 
+    private Map<String, Integer> playerScores = new HashMap<>(); // Track scores
+    private Map<String, Integer> currentSums = new HashMap<>(); // Track current sums for each room
+
     public ServerController() throws IOException {
         socket = new DatagramSocket(SERVER_PORT);
         rooms = new HashMap<>();
@@ -64,7 +67,15 @@ public class ServerController {
                 break;
             case "SELECT_CARD":
                 System.out.println("Select Card Command: RoomCode=" + parts[1] + ", Username=" + parts[2] + ", Card=" + parts[3]);
-                selectCard(parts[1], parts[2], parts[3]);
+                selectCard(parts[1], parts[2], Integer.parseInt(parts[3]), address, port);
+                break;
+            case "PASS":
+                System.out.println("Pass Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
+                pass(parts[1], address, port);
+                break;
+            case "SKIP":
+                System.out.println("Skip Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
+                pass(parts[1], address, port); // Reuse pass logic for skip
                 break;
             case "AUTHENTICATE_USER":
                 System.out.println("Authenticate User Command: Username=" + parts[1]);
@@ -113,6 +124,7 @@ public class ServerController {
             List<ClientInfo> clients = new ArrayList<>();
             rooms.put(roomCode, clients);
             System.out.println("Room created: " + roomCode);
+            currentSums.put(roomCode, generateNewSum()); // Generate initial sum for the room
         }
         joinRoom(roomCode, address, port, username);
     }
@@ -122,14 +134,14 @@ public class ServerController {
             sendMessage(address, port, "JOIN_FAIL");
             return;
         }
-    
+
         if (rooms.containsKey(roomCode)) {
             List<ClientInfo> clients = rooms.get(roomCode);
             ClientInfo client = new ClientInfo(address, port, username);
             clients.add(client);
             System.out.println("User " + username + " joined room: " + roomCode);
             sendMessage(address, port, "JOIN_SUCCESS");
-    
+
             // Notify other users in the room
             notifyRoom(roomCode, "USER_JOINED:" + username);
             // Send updated list of users
@@ -139,19 +151,19 @@ public class ServerController {
             sendMessage(address, port, "JOIN_FAIL");
         }
     }
-    
+
     private void leaveRoom(String roomCode, InetAddress address, int port, String username) throws IOException {
         if (username == null || username.isEmpty()) {
             sendMessage(address, port, "LEAVE_FAIL");
             return;
         }
-    
+
         if (rooms.containsKey(roomCode)) {
             List<ClientInfo> clients = rooms.get(roomCode);
             clients.removeIf(client -> client.getUsername().equals(username) && client.getAddress().equals(address) && client.getPort() == port);
             System.out.println("User " + username + " left room: " + roomCode);
             sendMessage(address, port, "LEAVE_SUCCESS");
-    
+
             // Notify other users in the room
             notifyRoom(roomCode, "USER_LEFT:" + username);
             // Send updated list of users
@@ -161,33 +173,57 @@ public class ServerController {
             sendMessage(address, port, "LEAVE_FAIL");
         }
     }
-    
-    private void sendUpdatedUserList(String roomCode) throws IOException {
-        if (rooms.containsKey(roomCode)) {
-            List<ClientInfo> clients = rooms.get(roomCode);
-            StringBuilder userList = new StringBuilder("USER_LIST:");
-            for (ClientInfo client : clients) {
-                userList.append(client.getUsername()).append(",");
-            }
-            if (userList.length() > 0) {
-                userList.setLength(userList.length() - 1); // Remove trailing comma
-            }
-            notifyRoom(roomCode, userList.toString());
-        }
-    }
-    
-    private void selectCard(String roomCode, String username, String card) {
+
+    private void selectCard(String roomCode, String username, int cardNumber, InetAddress address, int port) throws IOException {
         if (username == null || username.isEmpty()) {
-            // Handle invalid card selection
+            sendMessage(address, port, "SELECT_FAIL");
             return;
         }
-        if (rooms.containsKey(roomCode) && rooms.get(roomCode).stream().anyMatch(client -> client.getUsername().equals(username))) {
-            notifyRoom(roomCode, "CARD_SELECTED:" + roomCode + ":" + username + ":" + card);
+
+        if (rooms.containsKey(roomCode)) {
+            List<ClientInfo> clients = rooms.get(roomCode);
+            int sum = currentSums.get(roomCode);
+
+            if (cardNumber == sum) {
+                sendMessage(address, port, "CORRECT:" + cardNumber);
+                playerScores.put(username, playerScores.getOrDefault(username, 0) + 1);
+
+                if (playerScores.get(username) == 9) {
+                    for (ClientInfo client : clients) {
+                        sendMessage(client.getAddress(), client.getPort(), "WINNER:" + username);
+                    }
+                } else {
+                    int newSum = generateNewSum();
+                    currentSums.put(roomCode, newSum);
+                    notifyRoom(roomCode, "NEW_SUM:" + newSum);
+                }
+            } else {
+                sendMessage(address, port, "WRONG");
+            }
         } else {
-            System.out.println("User " + username + " is not in room " + roomCode);
+            sendMessage(address, port, "SELECT_FAIL");
         }
     }
-    
+
+    private void pass(String roomCode, InetAddress address, int port) throws IOException {
+        if (rooms.containsKey(roomCode)) {
+            int newSum = generateNewSum();
+            currentSums.put(roomCode, newSum);
+            notifyRoom(roomCode, "NEW_SUM:" + newSum);
+        } else {
+            sendMessage(address, port, "PASS_FAIL");
+        }
+    }
+
+    private int generateNewSum() {
+        Random random = new Random();
+        int a, b;
+        do {
+            a = random.nextInt(10);
+            b = random.nextInt(10);
+        } while (a + b < 1 || a + b > 10 || a + b == 8);
+        return a + b;
+    }
 
     private void sendMessage(InetAddress address, int port, String message) throws IOException {
         byte[] buffer = message.getBytes();
@@ -206,5 +242,19 @@ public class ServerController {
                 }
             }
         }
-    }    
+    }
+
+    private void sendUpdatedUserList(String roomCode) throws IOException {
+        if (rooms.containsKey(roomCode)) {
+            List<ClientInfo> clients = rooms.get(roomCode);
+            StringBuilder userList = new StringBuilder("USER_LIST:");
+            for (ClientInfo client : clients) {
+                userList.append(client.getUsername()).append(",");
+            }
+            if (userList.length() > 0) {
+                userList.setLength(userList.length() - 1); // Remove trailing comma
+            }
+            notifyRoom(roomCode, userList.toString());
+        }
+    }
 }
