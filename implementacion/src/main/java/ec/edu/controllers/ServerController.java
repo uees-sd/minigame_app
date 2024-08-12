@@ -79,7 +79,7 @@ public class ServerController {
                 break;
         }
     }
-    
+
     private void skip(String roomCode, InetAddress address, int port) throws IOException {
         if (rooms.containsKey(roomCode)) {
             int newSum = generateNewSum();
