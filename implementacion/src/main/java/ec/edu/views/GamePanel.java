@@ -114,15 +114,15 @@ public class GamePanel extends JPanel {
     }
 
     public void updateSum(int a, int b) {
-        sumLabel.setText("Sum: " + a + " + " + b + " ? ");
+        sumLabel.setText("Sum: " + a + " + " + b + " = ? ");
     }
 
     public void blockCard(int cardNumber) {
         blockedCards.add(cardNumber);
-        // Change the color of the blocked card to gray (implementation detail depends on how you manage the buttons)
+        // Change the color of the blocked card to gray
         for (Component comp : ((JPanel) getComponent(1)).getComponents()) {
             JButton button = (JButton) comp;
-            if (button.getText().equals("Card " + cardNumber)) {
+            if (button.getText().equals("" + cardNumber)) {
                 button.setBackground(Color.GRAY);
             }
         }
