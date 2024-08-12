@@ -20,19 +20,18 @@ public class GamePanel extends JPanel {
     private DefaultListModel<String> userListModel;
     private JList<String> userList;
     private Set<Integer> blockedCards;
-    private int progress;
+    private JProgressBar progressBar; // New Progress Bar
     private Timer actionTimer; // Timer for Pass and Skip buttons
     private int remainingTime = 15; // Track remaining time
 
     public GamePanel(ClientController client) {
         this.client = client;
         this.blockedCards = new HashSet<>();
-        this.progress = 0;
         setLayout(new BorderLayout());
         setBackground(new Color(240, 248, 255));
 
         // Initialize components
-        sumLabel = new JLabel("Sum: 0 + 0 = 0 | Progress: 0%");
+        sumLabel = new JLabel("Sum: 0 + 0 = 0");
         sumLabel.setFont(new Font("Arial", Font.BOLD, 16));
         sumLabel.setForeground(new Color(0, 51, 102));
         sumLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -58,7 +57,7 @@ public class GamePanel extends JPanel {
         add(cardPanel, BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setLayout(new GridLayout(1, 3)); // Adjust layout to fit three buttons
+        bottomPanel.setLayout(new GridLayout(2, 2)); // Adjust layout for progress bar and buttons
 
         passButton = new JButton("Pass");
         styleButton(passButton);
@@ -69,6 +68,11 @@ public class GamePanel extends JPanel {
         styleButton(skipButton);
         skipButton.addActionListener(e -> handleSkipAction());
         bottomPanel.add(skipButton);
+
+        progressBar = new JProgressBar(0, 100); // Initialize progress bar
+        progressBar.setValue(0); // Initial value
+        progressBar.setStringPainted(true); // Show percentage
+        bottomPanel.add(progressBar);
 
         messageLabel = new JLabel("Waiting for answers...");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -157,11 +161,17 @@ public class GamePanel extends JPanel {
     }
 
     public void updateSum(int a, int b) {
-        sumLabel.setText("Sum: " + a + " + " + b + " = ? " + " | Progress: " + progress + "%");
+        sumLabel.setText("Sum: " + a + " + " + b + " = " + (a + b));
     }
 
     public void updateProgress() {
-        progress = blockedCards.size() * 10;
+        int progress = blockedCards.size() * 10;
+        progressBar.setValue(progress);
+        // Ensure the progress is between 0 and 100
+        if (progress > 100) {
+            progress = 100;
+        }
+        progressBar.setValue(progress);
     }
 
     public void blockCard(int cardNumber) {
@@ -174,6 +184,6 @@ public class GamePanel extends JPanel {
             }
         }
         updateProgress();
-    }
+    }    
 }
 
