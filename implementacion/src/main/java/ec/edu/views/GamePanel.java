@@ -22,7 +22,7 @@ public class GamePanel extends JPanel {
     private Set<Integer> blockedCards;
     private JProgressBar progressBar; // New Progress Bar
     private Timer actionTimer; // Timer for Pass and Skip buttons
-    private int remainingTime = 15; // Track remaining time
+    private int remainingTime = 5; // Track remaining time
 
     public GamePanel(ClientController client) {
         this.client = client;
@@ -137,7 +137,7 @@ public class GamePanel extends JPanel {
         if (actionTimer.isRunning()) {
             actionTimer.stop();
         }
-        remainingTime = 15; // Reset remaining time to 15 seconds
+        remainingTime = 5; // Reset remaining time to 15 seconds
         actionTimer.start(); // Start the timer
         passButton.setEnabled(false);
         skipButton.setEnabled(false);
@@ -161,7 +161,7 @@ public class GamePanel extends JPanel {
     }
 
     public void updateSum(int a, int b) {
-        sumLabel.setText("Sum: " + a + " + " + b + " = " + (a + b));
+        sumLabel.setText("Sum: " + a + " + " + b + " = ?" );
     }
 
     public void updateProgress() {
