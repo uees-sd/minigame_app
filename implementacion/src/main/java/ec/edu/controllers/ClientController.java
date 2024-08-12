@@ -1,3 +1,4 @@
+// ClientController.java
 package ec.edu.controllers;
 
 import javax.swing.*;
@@ -167,8 +168,7 @@ public class ClientController {
         } while (currentA + currentB < 1 || currentA + currentB > 10);
         gamePanel.updateSum(currentA, currentB);
     }
-
-    // Modify sendMessage to handle PASS and SKIP correctly
+    
     public void sendMessage(String message) {
         if (username == null || username.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Please login first.");
@@ -178,7 +178,7 @@ public class ClientController {
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, SERVER_PORT);
             socket.send(packet);
-
+    
             if (message.startsWith("SELECT_CARD:")) {
                 String[] parts = message.split(":");
                 int cardNumber = Integer.parseInt(parts[3]);
@@ -193,4 +193,5 @@ public class ClientController {
             e.printStackTrace();
         }
     }
+    
 }
