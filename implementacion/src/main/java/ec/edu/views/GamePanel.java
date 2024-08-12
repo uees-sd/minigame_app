@@ -39,7 +39,7 @@ public class GamePanel extends JPanel {
         cardPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         JButton[] cardButtons = new JButton[10];
         for (int i = 1; i <= 10; i++) {
-            cardButtons[i-1] = new JButton("Card " + i);
+            cardButtons[i-1] = new JButton("" + i);
             styleButton(cardButtons[i-1]);
             int cardNumber = i;
             cardButtons[i-1].addActionListener(e -> {
@@ -114,7 +114,7 @@ public class GamePanel extends JPanel {
     }
 
     public void updateSum(int a, int b) {
-        sumLabel.setText("Sum: " + a + " + " + b + " = " + (a + b));
+        sumLabel.setText("Sum: " + a + " + " + b + " ? ");
     }
 
     public void blockCard(int cardNumber) {
