@@ -18,15 +18,17 @@ public class GamePanel extends JPanel {
     private DefaultListModel<String> userListModel;
     private JList<String> userList;
     private Set<Integer> blockedCards;
+    private int progress;
 
     public GamePanel(ClientController client) {
         this.client = client;
         this.blockedCards = new HashSet<>();
+        this.progress = 0;
         setLayout(new BorderLayout());
         setBackground(new Color(240, 248, 255));
 
         // Initialize components
-        sumLabel = new JLabel("Sum: 0 + 0 = 0");
+        sumLabel = new JLabel("Sum: 0 + 0 = 0 | Progress: 0%");
         sumLabel.setFont(new Font("Arial", Font.BOLD, 16));
         sumLabel.setForeground(new Color(0, 51, 102));
         sumLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -114,7 +116,11 @@ public class GamePanel extends JPanel {
     }
 
     public void updateSum(int a, int b) {
-        sumLabel.setText("Sum: " + a + " + " + b + " = ? ");
+        sumLabel.setText("Sum: " + a + " + " + b + " = " + (a + b) + " | Progress: " + progress + "%");
+    }
+
+    public void updateProgress() {
+        progress = blockedCards.size() * 10;
     }
 
     public void blockCard(int cardNumber) {
@@ -126,5 +132,6 @@ public class GamePanel extends JPanel {
                 button.setBackground(Color.GRAY);
             }
         }
+        updateProgress();
     }
 }
