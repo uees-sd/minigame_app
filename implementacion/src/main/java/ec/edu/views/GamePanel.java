@@ -22,7 +22,7 @@ public class GamePanel extends JPanel {
     private Set<Integer> blockedCards;
     private JProgressBar progressBar; // New Progress Bar
     private Timer actionTimer; // Timer for Pass and Skip buttons
-    private int remainingTime = 5; // Track remaining time
+    private int remainingTime = 3; // Track remaining time
 
     public GamePanel(ClientController client) {
         this.client = client;
@@ -93,7 +93,7 @@ public class GamePanel extends JPanel {
         add(userScrollPane, BorderLayout.EAST);
 
         // Initialize the timer for Pass and Skip buttons
-        actionTimer = new Timer(1000, new ActionListener() {
+        actionTimer = new Timer(400, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (remainingTime <= 0) {
@@ -168,8 +168,12 @@ public class GamePanel extends JPanel {
         int progress = blockedCards.size() * 10;
         progressBar.setValue(progress);
         // Ensure the progress is between 0 and 100
-        if (progress > 100) {
-            progress = 100;
+        //if es mayor a 100 o igual 100, alerta que gana y deja la sala
+        if (progress >= 100) {
+            JOptionPane.showMessageDialog(client.frame, "¡Felicidades! Has ganado el juego.");
+            client.sendMessage("LEAVE_ROOM:" + client.getCurrentRoomCode() + ":" + client.getUsername());
+            //redirige para que cree otra sala
+            client.switchToRoomPanel();
         }
         progressBar.setValue(progress);
     }
