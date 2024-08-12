@@ -73,20 +73,6 @@ public class ClientController {
         }
     }
 
-    // public void sendMessage(String message) {
-    //     if (username == null || username.isEmpty()) {
-    //         JOptionPane.showMessageDialog(frame, "Please login first.");
-    //         return;
-    //     }
-    //     try {
-    //         byte[] buffer = message.getBytes();
-    //         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, SERVER_PORT);
-    //         socket.send(packet);
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //     }
-    // }
-
     public void switchToLoginPanel() {
         CardLayout cl = (CardLayout) frame.getContentPane().getLayout();
         cl.show(frame.getContentPane(), "login");
@@ -178,11 +164,11 @@ public class ClientController {
         do {
             currentA = random.nextInt(10);
             currentB = random.nextInt(10);
-        } while (currentA + currentB < 1 || currentA + currentB > 10 || currentA + currentB == 8);
+        } while (currentA + currentB < 1 || currentA + currentB > 10);
         gamePanel.updateSum(currentA, currentB);
     }
 
-    // Modify sendMessage to handle PASS and correct selection
+    // Modify sendMessage to handle PASS and SKIP correctly
     public void sendMessage(String message) {
         if (username == null || username.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Please login first.");
@@ -200,7 +186,7 @@ public class ClientController {
                     gamePanel.blockCard(cardNumber);
                     generateNewSum();
                 }
-            } else if (message.startsWith("PASS:")) {
+            } else if (message.startsWith("PASS:") || message.startsWith("SKIP:")) { // Handle SKIP
                 generateNewSum();
             }
         } catch (IOException e) {

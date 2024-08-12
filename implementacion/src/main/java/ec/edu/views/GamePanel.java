@@ -12,6 +12,7 @@ public class GamePanel extends JPanel {
     private ClientController client;
     private JButton abandonGameButton;
     private JButton passButton;
+    private JButton skipButton; // New Skip Button
     private JLabel messageLabel;
     private JLabel sumLabel;
     private DefaultListModel<String> userListModel;
@@ -50,6 +51,9 @@ public class GamePanel extends JPanel {
         }
         add(cardPanel, BorderLayout.CENTER);
 
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new GridLayout(1, 3)); // Adjust layout to fit three buttons
+
         passButton = new JButton("Pass");
         styleButton(passButton);
         passButton.addActionListener(e -> {
@@ -57,14 +61,25 @@ public class GamePanel extends JPanel {
                 client.sendMessage("PASS:" + client.getCurrentRoomCode() + ":" + client.getUsername());
             }
         });
-        add(passButton, BorderLayout.SOUTH);
+        bottomPanel.add(passButton);
+
+        skipButton = new JButton("Skip"); // New Skip Button
+        styleButton(skipButton);
+        skipButton.addActionListener(e -> {
+            if (client.getCurrentRoomCode() != null) {
+                client.sendMessage("SKIP:" + client.getCurrentRoomCode() + ":" + client.getUsername());
+            }
+        });
+        bottomPanel.add(skipButton);
 
         messageLabel = new JLabel("Waiting for answers...");
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         messageLabel.setForeground(new Color(0, 51, 102));
         messageLabel.setHorizontalAlignment(JLabel.CENTER);
         messageLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        add(messageLabel, BorderLayout.SOUTH);
+        bottomPanel.add(messageLabel);
+
+        add(bottomPanel, BorderLayout.SOUTH);
 
         // Initialize user list components
         userListModel = new DefaultListModel<>();

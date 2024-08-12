@@ -73,6 +73,10 @@ public class ServerController {
                 System.out.println("Pass Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
                 pass(parts[1], address, port);
                 break;
+            case "SKIP":
+                System.out.println("Skip Command: RoomCode=" + parts[1] + ", Username=" + parts[2]);
+                pass(parts[1], address, port); // Reuse pass logic for skip
+                break;
             case "AUTHENTICATE_USER":
                 System.out.println("Authenticate User Command: Username=" + parts[1]);
                 authenticateUser(parts[1], parts[2], address, port);

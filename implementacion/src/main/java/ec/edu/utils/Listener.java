@@ -66,6 +66,10 @@ public class Listener implements Runnable {
                 String card = parts[3];
                 clientController.gamePanel.updateMessage(username + " selected card: " + card);
                 break;
+            case "NEW_SUM":
+                int newSum = Integer.parseInt(parts[1]);
+                clientController.generateNewSum(); // Update sum
+                break;
             // Handle other messages as needed
         }
     }
